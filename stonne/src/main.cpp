@@ -11,13 +11,13 @@
 using namespace std;
 
 void configConvParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &R, unsigned int &S, unsigned int &C, unsigned int &K, unsigned int &G, unsigned int &N, unsigned int &X, unsigned int &Y, unsigned int &strides,
-                          unsigned int &T_R, unsigned int &T_S, unsigned int &T_C, unsigned int &T_K, unsigned int &T_G, unsigned int &T_N, unsigned int &T_X_, unsigned int &T_Y_);
+                      unsigned int &T_R, unsigned int &T_S, unsigned int &T_C, unsigned int &T_K, unsigned int &T_G, unsigned int &T_N, unsigned int &T_X_, unsigned int &T_Y_, TileGenerator::Target &tileGeneratorTarget, TileGenerator::Generator &tileGenerator);
 
 void configSparseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &N, unsigned int &K, unsigned int &MK_sparsity, unsigned int &KN_sparsity, Dataflow &dataflow, unsigned int &optimize);
 
-void configDenseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &K, unsigned int &N, unsigned int &T_M, unsigned int &T_K, unsigned int &T_N);
+void configDenseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &K, unsigned int &N, unsigned int &T_M, unsigned int &T_K, unsigned int &T_N, TileGenerator::Target &tileGeneratorTarget, TileGenerator::Generator &tileGenerator);
 
-void configSparseDenseParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &N, unsigned int &K, unsigned int &MK_sparsity, unsigned int &T_N, unsigned int &T_K);
+void configSparseDenseParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &N, unsigned int &K, unsigned int &MK_sparsity, unsigned int &T_N, unsigned int &T_K, TileGenerator::Target &tileGeneratorTarget, TileGenerator::Generator &tileGenerator);
 
 void configPoolingParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &R, unsigned int &S, unsigned int &C, unsigned int &N, unsigned int &X, unsigned int &Y, unsigned int &strides,
                              unsigned int &T_R, unsigned int &T_S, unsigned int &T_C, unsigned int &T_N, unsigned int &T_X_, unsigned int &T_Y_);
@@ -72,15 +72,14 @@ int main(int argc, char *argv[]) {
             runAveragePoolingCommand(argc, argv);
         }
 
+        else if(arg=="-SparseDense") {
+            runSparseDenseCommand(argc, argv);
 
+        }
         else {
             std::cout << "How to use STONNE User Interface: ./" << argv[0] << " -h" << std::endl;
         }
-    }
-
-    else {
-        std::cout << "How to use STONNE User Interface: ./" << argv[0] << " -h" << std::endl;
-    }
+    }   
 }
 
 bool runConvCommand(int argc, char *argv[]) {
@@ -109,14 +108,19 @@ bool runConvCommand(int argc, char *argv[]) {
     unsigned int T_N=1;                                // T_N
     unsigned int T_X_=1;                               // T_X
     unsigned int T_Y_=1;                               // T_Y
+
+    // TileGenerator parameters
+    TileGenerator::Target tileGeneratorTarget = TileGenerator::Target::NONE;
+    TileGenerator::Generator tileGenerator = TileGenerator::Generator::CHOOSE_AUTOMATICALLY;
+
     Config stonne_cfg; //Hardware parameters
-    //    stonne_cfg.m_MSNetworkCfg.ms_size=128;
-    configConvParameters(argc, argv, stonne_cfg, layer_name, R, S, C, K, G, N, X, Y, strides, T_R, T_S, T_C, T_K, T_G, T_N, T_X_, T_Y_); //Modify stonne_cfg and the variables according to user arguments
+//    stonne_cfg.m_MSNetworkCfg.ms_size=128;
+    configConvParameters(argc, argv, stonne_cfg, layer_name, R, S, C, K, G, N, X, Y, strides, T_R, T_S, T_C, T_K, T_G, T_N, T_X_, T_Y_, tileGeneratorTarget, tileGenerator); //Modify stonne_cfg and the variables according to user arguments
 
     //Calculating output parameters
     unsigned int X_= (X - R + strides) / strides;      // X_
     unsigned int Y_=(Y - S + strides) / strides;       // Y_
-    std::cout << "Output Size: (X'=" << X_ << ", Y'=" << Y_ << std::endl;
+    std::cout << "Output Size: (X'=" << X_ << ", Y'=" << Y_ << ")" << std::endl; 
 
 
     //Creating arrays to store the ifmap ofmap and weights
@@ -149,8 +153,12 @@ bool runConvCommand(int argc, char *argv[]) {
     //Computing the CNN Layer with the simulator
     Stonne* stonne_instance = new Stonne(stonne_cfg); //Creating instance of the simulator
     stonne_instance->loadDNNLayer(CONV, layer_name, R, S, C, K, G, N, X, Y, strides, ifmap, filter, ofmap, CNN_DATAFLOW); //Loading the layer
-    stonne_instance->loadTile(T_R, T_S, T_C, T_K, T_G, T_N, T_X_, T_Y_); //Loading the tile
-    stonne_instance->run(); //Running the simulator
+    //Loads or generates a tile configuration depending on whether a TileGenerator target has been specified
+    if (tileGeneratorTarget == TileGenerator::Target::NONE)
+        stonne_instance->loadTile(T_R, T_S, T_C, T_K, T_G, T_N, T_X_, T_Y_);
+    else
+        stonne_instance->generateTile(tileGenerator, tileGeneratorTarget);
+    stonne_instance->run(); //Running the simulator 
 
     /** END of configuring and running the accelerator  **/
     //
@@ -202,9 +210,14 @@ bool runDenseGEMMCommand(int argc, char *argv[]) {
     unsigned int T_K=1;                                // T_K
     unsigned int T_N=1;                                // T_N
 
+    // TileGenerator parameters
+    TileGenerator::Target tileGeneratorTarget = TileGenerator::Target::NONE;
+    TileGenerator::Generator tileGenerator = TileGenerator::Generator::CHOOSE_AUTOMATICALLY;
+
+
     Config stonne_cfg; //Hardware parameters
-    //    stonne_cfg.m_MSNetworkCfg.ms_size=128;
-    configDenseGEMMParameters(argc, argv, stonne_cfg, layer_name, M, K, N, T_M, T_K, T_N); //Modify stonne_cfg and the variables according to user arguments
+//    stonne_cfg.m_MSNetworkCfg.ms_size=128;
+    configDenseGEMMParameters(argc, argv, stonne_cfg, layer_name, M, K, N, T_M, T_K, T_N, tileGeneratorTarget, tileGenerator); //Modify stonne_cfg and the variables according to user arguments
 
 
 
@@ -230,6 +243,7 @@ bool runDenseGEMMCommand(int argc, char *argv[]) {
     //computing CPU version based on a Conv parameters mapping. Note a CONV layer might be seen as a GEMM if the mapping is correct.
     //sequential_layer(1, K, 1, M, 1, N, 1, K, 1, KN_matrix, MK_matrix, output_cpu); //Supposes that MK=inputs (M=batch size) and KN=filters (N=number of filters)
     //sequential_layer(1, K, 1, N, 1, 1, M, K, 1, MK_matrix, KN_matrix, output_cpu); //Supposes that MK=inputs (M=batch size) and KN=filters (N=number of filters)
+    /*
     std::cout << "Printing MK matrix: " << std::endl;
     for(int i=0; i<M; i++) {
         for(int j=0; j<K; j++) {
@@ -245,8 +259,8 @@ bool runDenseGEMMCommand(int argc, char *argv[]) {
             std::cout << KN_matrix[i*K+j] << " ";
         }
         std::cout << std::endl;
-
     }
+     */
 
 
     sequential_layer(1, K, 1, N, 1, M, 1, K, 1, MK_matrix, KN_matrix, output_cpu); //Supposes that MK=inputs (M=batch size) and KN=filters (N=number of filters)
@@ -256,13 +270,17 @@ bool runDenseGEMMCommand(int argc, char *argv[]) {
     //
     //
     //
-    /** 1uring and running the accelerator  **/
-    
+    /** Configuring and running the accelerator  **/
+
     //Computing the CNN Layer with the simulator
     Stonne* stonne_instance = new Stonne(stonne_cfg); //Creating instance of the simulator
     stonne_instance->loadDenseGEMM(layer_name, N, K, M, MK_matrix, KN_matrix, output, CNN_DATAFLOW); //Loading the layer
-    stonne_instance->loadGEMMTile(T_N, T_K, T_M); //Loading the tile
-    stonne_instance->run(); //Running the simulator
+    //Loads or generates a tile configuration depending on whether a TileGenerator target has been specified
+    if (tileGeneratorTarget == TileGenerator::Target::NONE)
+        stonne_instance->loadGEMMTile(T_N, T_K, T_M);
+    else
+        stonne_instance->generateTile(tileGenerator, tileGeneratorTarget);
+    stonne_instance->run(); //Running the simulator 
 
     /** END of configuring and running the accelerator  **/
     //
@@ -294,6 +312,160 @@ bool runDenseGEMMCommand(int argc, char *argv[]) {
     delete[] KN_matrix;
     delete[] output;
     delete[] output_cpu;
+    delete stonne_instance;
+    return true;
+}
+
+bool runSparseDenseCommand(int argc, char *argv[])
+{
+    float EPSILON=0.05;
+    std::string layer_name="SparseDenseTestLayer";
+    unsigned int M=32;                                  // M
+    unsigned int N=16;                                  // N
+    unsigned int K=32;                                  // K
+
+
+    unsigned int MK_sparsity=70;
+    unsigned int T_N=4;
+    unsigned int T_K=8;
+
+    // TileGenerator parameters
+    TileGenerator::Target tileGeneratorTarget = TileGenerator::Target::NONE;
+    TileGenerator::Generator tileGenerator = TileGenerator::Generator::CHOOSE_AUTOMATICALLY;
+
+    Config stonne_cfg;
+    stonne_cfg.m_SDMemoryCfg.mem_controller_type=MAGMA_SPARSE_DENSE;
+    stonne_cfg.m_ASNetworkCfg.accumulation_buffer_enabled=1; // accumulation_buffer always enabled by default
+
+    configSparseDenseParameters(argc, argv, stonne_cfg, layer_name, M, N, K, MK_sparsity, T_N, T_K, tileGeneratorTarget, tileGenerator);
+
+    //Creating MK matrix
+    float* MK_dense_matrix_no_organized = generateMatrixDense(M, K, MK_sparsity);
+    float* MK_dense_matrix = new float[M*K];
+
+    //KN matrix
+    float* KN_dense_matrix_no_organized = generateMatrixDense(K, N, 0);
+    float* KN_dense_matrix = new float[K*N];
+
+    for(int i=0; i<M*K; i++) {
+        MK_dense_matrix[i]=MK_dense_matrix_no_organized[i];
+    }
+
+    for(int i=0; i<K*N; i++) {
+        KN_dense_matrix[i]=KN_dense_matrix_no_organized[i];
+
+    }
+
+    float* cpu_output = new float[M*N];
+    float* acc_output = new float[M*N];
+
+    //Generating bitmaps
+    int nnz=0;
+    int* MK_col_id = generateMinorIDFromDense(MK_dense_matrix, M, K, nnz, GEN_BY_ROWS);
+    int* MK_row_pointer = generateMajorPointerFromDense(MK_dense_matrix, M , K, GEN_BY_ROWS);
+
+    //Generating sparse matrix
+    float* MK_sparse_matrix = generateMatrixSparseFromDenseNoBitmap(MK_dense_matrix, M, K, GEN_BY_ROWS);
+
+    unsigned int* clocked_op = new unsigned int [M*N];
+
+
+
+//    /////
+//    // Print all
+/*
+    std::cout<<"\nKN Dense matrix - \n";
+
+	for(int i=0; i<K; i++) {
+        for(int j=0; j<N; j++) {
+            std::cout << KN_dense_matrix[i*N+j] << "\t";
+	}
+	std::cout << "\n";
+    }
+    std::cout << "\n";
+
+      std::cout<<"\nMK Dense matrix - \n";
+
+	for(int i=0; i<M; i++) {
+        for(int j=0; j<K; j++) {
+            std::cout << MK_dense_matrix[i*K+j] << "\t";
+	}
+	std::cout << "\n";
+    }
+    std::cout << "\n\nMK Sparse matrix - \n";
+    for(int i=0;i<nnz;i++)
+    {
+    	std::cout<<MK_sparse_matrix[i]<<"\t";
+    }
+
+    std::cout << "\n\nMK Col ID - \n";
+    for(int i=0;i<nnz;i++)
+    {
+    	std::cout<<MK_col_id[i]<<"\t";
+   }
+
+	std::cout << "\n\nMK Row pointer - \n";
+    for(int i=0;i<=M;i++)
+    {
+    	std::cout<<MK_row_pointer[i]<<"\t";
+    }
+    std::cout << "\n\n";
+    */
+
+
+    /////
+    Stonne* stonne_instance = new Stonne(stonne_cfg); //Creating instance of the simulator
+    stonne_instance->loadSparseDense(layer_name, N, K, M, MK_sparse_matrix, KN_dense_matrix, (unsigned int*)MK_col_id, (unsigned int*) MK_row_pointer, acc_output, T_N, T_K); //Loading Sparse Dense
+    //stonne_instance->loadClocking(clocked_op);
+    if (tileGeneratorTarget != TileGenerator::Target::NONE)
+        stonne_instance->generateTile(tileGenerator, tileGeneratorTarget, float(MK_sparsity) / 100.0f);
+    stonne_instance->run(); //Running the simulator
+
+
+       /** CHECKING the results to make sure that the output is correct  **/
+    std::cout << "Running CPU version to compare results" << std::endl;
+    //Generating cpu output
+    cpu_gemm(MK_dense_matrix_no_organized, KN_dense_matrix_no_organized, cpu_output, M, N, K);
+
+    //Comparing the results
+    for(int i=0;i<M; i++) {
+        for(int j=0; j<N; j++) {
+            float difference=fabs(cpu_output[i*N+j]-acc_output[i*N+j]);
+            if(difference > EPSILON) {
+                std::cout << "ERROR position (" << i << "," << j <<  "): Value out simulator: " << acc_output[i*N+j] << ". Value out CPU: " << cpu_output[i*N+j] << std::endl;
+                std::cout << "\033[1;31mT test not passed\033[0m" << std::endl;
+		delete[] MK_dense_matrix;
+                delete[] KN_dense_matrix;
+		delete[] MK_dense_matrix_no_organized;
+		delete[] KN_dense_matrix_no_organized;
+                delete[] MK_col_id;
+                delete[] MK_row_pointer;
+                delete[] MK_sparse_matrix;
+                delete[] cpu_output;
+                delete[] acc_output;
+                delete stonne_instance;
+
+                assert(false); //Always false
+
+            }
+
+        }
+    }
+
+
+    //If the code does not stop then the TEST is correct
+    std::cout << "\033[1;32mTest passed correctly \033[0m" << std::endl << std::endl;
+
+
+    delete[] MK_dense_matrix_no_organized;
+    delete[] KN_dense_matrix_no_organized;
+    delete[] MK_dense_matrix;
+    delete[] KN_dense_matrix;
+    delete[] MK_col_id;
+    delete[] MK_row_pointer;
+    delete[] MK_sparse_matrix;
+    delete[] cpu_output;
+    delete[] acc_output;
     delete stonne_instance;
     return true;
 }
@@ -630,94 +802,153 @@ bool runAveragePoolingCommand(int argc, char *argv[]) {
 
 bool runHelpCommand() {
     std::cout << "Welcome to the STONNE User Interface Version 1.0: " << std::endl;
+    std::cout << "Complete documentation can be found at README.md (https://github.com/stonne-simulator/stonne)" << std::endl;
     std::cout << "***********************************************************************************************************" << std::endl;
-    std::cout << "***********************************************************************************************************" << std::endl << std::endl;
-    std::cout << "The STONNE user interface allows to execute the STONNE simulator with any parameter. Currently, STONNE runs" << std::endl;
-    std::cout << "4 types of operations: Convolution Layers, FC Layers, Dense GEMMs and Sparse GEMMs. Note that almost any" << std::endl;
-    std::cout << "kernel can be, in the end, mapped using these operations." << std::endl;
+    std::cout << "***********************************************************************************************************" << std::endl;
     std::cout << std::endl;
-    std::cout << "Usage: ./stonne [-h | -CONV | -FC | -SparseGEMM | -DenseGEMM] [Hardware Parameters] [Dimension and tile Parameters]"  << std::endl;
-    std::cout  << std::endl;
+
+    std::cout << "The STONNE User Interface allows to execute the STONNE simulator with any parameter. Currently, STONNE runs" << std::endl;
+    std::cout << "5 types of operations: Convolution Layers, FC Layers, Dense GEMMs, Sparse GEMMs and SparseDense GEMMs." << std::endl;
+    std::cout << "Note that almost any kernel can be, in the end, mapped using these operations." << std::endl;
+    std::cout << std::endl;
+    std::cout << "The simulator also includes a module called STONNE Mapper, able to generate automatic mappings for" << std::endl;
+    std::cout << "CONV, FC/DenseGEMM and SparseDense layers. Its use enables fast prototyping and efficient layer mapping." << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "Usage: ./stonne [-h | -CONV | -FC | -DenseGEMM | -SparseGEMM | -SparseDense] [Hardware Parameters] [Dimension and tile Parameters]"  << std::endl;
+    std::cout << std::endl;
+
     std::cout << "[Hardware parameters]" << std::endl;
-    std::cout << "-num_ms=[x]: Number of multiplier switches (must be power of 2)" << std::endl;
-    std::cout << "-dn_bw=[x]: Number of read ports in the SDMemory (must be power of 2)" << std::endl;
-    std::cout << "-rn_bw=[x]: Number of write ports in the SDMemory (must be power of 2)" << std::endl;
-    std::cout << "-rn_type=[0=ASNETWORK, 1=FENETWORK]: type of the ReduceNetwork to be used (Not supported for SparseGEMM)" << std::endl;
-    std::cout << "-accumulation_buffer=[0,1]: enables the accumulation buffer" << std::endl;
-    std::cout << "-print_stats=[0,1]: Flag that enables the printing of the statistics" << std::endl;
+    std::cout << "  -num_ms=[x]: Number of multiplier switches (must be power of 2)" << std::endl;
+    std::cout << "  -dn_bw=[x]: Number of read ports in the SDMemory (must be power of 2)" << std::endl;
+    std::cout << "  -rn_bw=[x]: Number of write ports in the SDMemory (must be power of 2)" << std::endl;
+    std::cout << "  -rn_type=[0=ASNETWORK, 1=FENETWORK, 2=TEMPORALRN]: type of the ReduceNetwork to be used (Not supported for SparseGEMM)" << std::endl;
+    std::cout << "  -accumulation_buffer=[0,1]: enables the accumulation buffer (enabled by default in SparseDense)" << std::endl;
+    std::cout << "  -print_stats=[0,1]: Flag that enables the printing of the statistics" << std::endl;
     std::cout << std::endl;
 
     std::cout << "[Dimension and Tile parameters]" << std::endl;
     std::cout << "The dimensions of the kernel depends on the type of the operation that is going to be run. Next, we describe" << std::endl;
     std::cout << "described the dimensions according to each supported operation." << std::endl;
     std::cout << std::endl;
-    std::cout << "[CONV]" << std::endl;
-    std::cout << "-layer_name: Name of the layer to run. The output statistic file will be named accordingly" << std::endl;
-    std::cout << "-R: Number of flter rows" << std::endl;
-    std::cout << "-S: Number of filter columns" << std::endl;
-    std::cout << "-C: Number of filter and input channels" << std::endl;
-    std::cout << "-K: Number of filters and output channels" << std::endl;
-    std::cout << "-G: Number of groups" << std::endl;
-    std::cout << "-N: Number of inputs (Only 1 is supported so far)" << std::endl;
-    std::cout << "-X: Number of input rows" << std::endl;
-    std::cout << "-Y: Number of input columns" << std::endl;
-    std::cout << "-strides: Stride value used in the layer" << std::endl;
-    std::cout << "-T_R: Number of flter rows mapped at a time" << std::endl;
-    std::cout << "-T_S: Number of filter columns mapped at a time" << std::endl;
-    std::cout << "-T_C: Number of filter and input channels per group mapped at a time" << std::endl;
-    std::cout << "-T_K: Number of filters and output channels per group mapped at a time" << std::endl;
-    std::cout << "-T_G: Number of groups mappd at a time" << std::endl;
-    std::cout << "-T_N: Number of inputs mapped at a time (Only 1 is supported so far)" << std::endl;
-    std::cout << "-T_X_: Number of input rows mapped at a time" << std::endl;
-    std::cout << "-T_Y_: Number of input columns mapped a time" << std::endl;
-    std::cout << "** Please take into consideration that: **" << std::endl;
-    std::cout << "1. Number of Virtual Neurons mapped (Num_VNs) will be T_K*T_G*T_N*T_X_*T_T_" << std::endl;
-    std::cout << "2. The minimum number of MSwitches needed will be at least VN_Size*Num_VNs" << std::endl;
-    std::cout << "3. Note in case of folding (iteration over the same VN) is enabled, and the accumulation buffer disabled" << std::endl;
-    std::cout << "1 extra MSwitch per VN will be needed to manage the psum." << std::endl;
-    std::cout << "In this case, the minimum number of MSwitches needed will be at least (VN_Size+1)*Num_VNs" << std::endl;
-    std::cout << "Folding (iteration over the same virtual neuron) will be enabled if (R/T_S)*(S/T_S)*(C/T_C) > 1" << std::endl;           std::cout << std::endl;
-    std::cout << "[FC]" << std::endl;
-    std::cout << "-layer_name: Name of the layer to run. The output statistic file will be called by this name" << std::endl;
-    std::cout << "-M=Number of output neurons" << std::endl;
-    std::cout << "-N=Batch size" << std::endl;
-    std::cout << "-K=Number of input neurons" << std::endl;
-    std::cout << "-T_M=Number of output neurons mapped at a time" << std::endl;
-    std::cout << "-T_N=Number of batches mapped at a time" << std::endl;
-    std::cout << "-T_K=Number of input neurons mapped at a time" << std::endl;
-    std::cout << "** Please take into consideration that: **" << std::endl;
-    std::cout << "1. Number of Virtual Neurons mapped (Num_VNs) will be T_N*T_M" << std::endl;
-    std::cout << "2. The minimum number of MSwitches needed will be at least T_K*Num_VNs." << std::endl;
-    std::cout << std::endl;
-    std::cout << "[DenseGEMM]" << std::endl;
-    std::cout << "-layer_name: Name of the layer to run. The output statistic file will be called by this name" << std::endl;
-    std::cout << "-M=Number of rows MK matrix" << std::endl;
-    std::cout << "-N=Number of columns KN matrix" << std::endl;
-    std::cout << "-K=Number of columns MK and rows KN matrix (cluster size)" << std::endl;
-    std::cout << "-T_M=Number of M rows mapped at a time" << std::endl;
-    std::cout << "-T_N=Number of N columns at a time" << std::endl;
-    std::cout << "-T_K=Number of K elements mapped at a time" << std::endl;
-    std::cout << "** Please take into consideration that: **" << std::endl;
-    std::cout << "1. Number of Virtual Neurons mapped (Num_VNs) will be T_N*T_M" << std::endl;
-    std::cout << "2. The minimum number of MSwitches needed will be at least T_K*Num_VNs." << std::endl;
-    std::cout << std::endl;
-    std::cout << "[SparseGEMM]" << std::endl;
-    std::cout << "-layer_name: Name of the layer to run. The output statistic file will be called by this name" << std::endl;
-    std::cout << "-M=Number of rows MK matrix" << std::endl;
-    std::cout << "-N=Number of columns KN matrix" << std::endl;
-    std::cout << "-K=Number of columns MK and rows KN matrix (cluster size)" << std::endl;
-    std::cout << "-MK_sparsity=Percentage of sparsity MK matrix (0-100)" << std::endl;
-    std::cout << "-KN_sparsity=Percentahe of sparsity KN matrix (0-100)" << std::endl;
-    std::cout << "-dataflow=MK_STA_KN_STR or MK_STR_KN_STA" << std::endl;
-    std::cout << "-optimize=[0,1]: apply compiler-based optimizations" << std::endl;
 
+    std::cout << "[[CONV]]" << std::endl;
+    std::cout << "  -layer_name=[x]: Name of the layer to run. The output statistic file will be named accordingly" << std::endl; 
+    std::cout << "  -R=[x]: Number of flter rows" << std::endl;
+    std::cout << "  -S=[x]: Number of filter columns" << std::endl;
+    std::cout << "  -C=[x]: Number of filter and input channels" << std::endl;
+    std::cout << "  -K=[x]: Number of filters and output channels" << std::endl;
+    std::cout << "  -G=[x]: Number of groups" << std::endl;
+    std::cout << "  -N=[x]: Number of inputs (Only 1 is supported so far)" << std::endl;
+    std::cout << "  -X=[x]: Number of input rows" << std::endl;
+    std::cout << "  -Y=[x]: Number of input columns" << std::endl;
+    std::cout << "  -strides=[x]: Stride value used in the layer" << std::endl;
+    std::cout << "  -T_R=[x]: Number of flter rows mapped at a time" << std::endl;
+    std::cout << "  -T_S=[x]: Number of filter columns mapped at a time" << std::endl;
+    std::cout << "  -T_C=[x]: Number of filter and input channels per group mapped at a time" << std::endl;
+    std::cout << "  -T_K=[x]: Number of filters and output channels per group mapped at a time" << std::endl;
+    std::cout << "  -T_G=[x]: Number of groups mappd at a time" << std::endl;
+    std::cout << "  -T_N=[x]: Number of inputs mapped at a time (Only 1 is supported so far)" << std::endl;
+    std::cout << "  -T_X_=[x]: Number of input rows mapped at a time" << std::endl;
+    std::cout << "  -T_Y_=[x]: Number of input columns mapped a time" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  [[[STONNE Mapper]]]" << std::endl;
+    std::cout << "    1. If used, the following parameters can be skipped: strides, T_R, T_S, T_C, T_K, T_G, T_N, T_X_ and T_Y_." << std::endl;
+    std::cout << "    2. When using it, it is mandatory to also use the option -accumulation_buffer=1 to ensure that the tile configuration can" << std::endl;
+    std::cout << "       adjust to the hardware resources." << std::endl;
+    std::cout << "    -generate_tile=[0|none, 1|performance, 2|energy, 3|energy_efficiency]: Enables mapping generation, specifying the target" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  ** Please take into consideration that: **" << std::endl;
+    std::cout << "  1. Number of Virtual Neurons mapped (Num_VNs) will be T_K*T_G*T_N*T_X_*T_T_" << std::endl;
+    std::cout << "  2. The minimum number of MSwitches needed will be at least VN_Size*Num_VNs" << std::endl;
+    std::cout << "  3. Note in case of folding (iteration over the same VN) is enabled, and the accumulation buffer disabled" << std::endl;
+    std::cout << "     1 extra MSwitch per VN will be needed to manage the psum. In this case, the minimum number of MSwitches" << std::endl;
+    std::cout << "     needed will be at least (VN_Size+1)*Num_VNs. Folding (iteration over the same virtual neuron) will be" << std::endl;
+    std::cout << "     enabled if (R/T_S)*(S/T_S)*(C/T_C) > 1" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "[[FC]]" << std::endl;
+    std::cout << "  -layer_name=[x]:  Name of the layer to run. The output statistic file will be called by this name" << std::endl;
+    std::cout << "  -M=[x]: Number of output neurons" << std::endl;
+    std::cout << "  -N=[x]: Batch size" << std::endl;
+    std::cout << "  -K=[x]: Number of input neurons" << std::endl;
+    std::cout << "  -T_M=[x]: Number of output neurons mapped at a time" << std::endl;
+    std::cout << "  -T_N=[x]: Number of batches mapped at a time" << std::endl;
+    std::cout << "  -T_K=[x]: Number of input neurons mapped at a time" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  [[[STONNE Mapper]]]" << std::endl;
+    std::cout << "    1. If used, the following parameters can be skipped: T_M, T_N and T_K." << std::endl;
+    std::cout << "    2. When using it, it is mandatory to also use the option -accumulation_buffer=1 to ensure that the tile configuration can" << std::endl;
+    std::cout << "       adjust to the hardware resources." << std::endl;
+    std::cout << "    -generate_tile=[0|none, 1|performance]: Enables mapping generation, specifying the target (only performance is supported)" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  ** Please take into consideration that: **" << std::endl;
+    std::cout << "  1. Number of Virtual Neurons mapped (Num_VNs) will be T_N*T_M" << std::endl;
+    std::cout << "  2. The minimum number of MSwitches needed will be at least T_K*Num_VNs." << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "[[DenseGEMM]]" << std::endl;
+    std::cout << "  -layer_name=[x]:  Name of the layer to run. The output statistic file will be called by this name" << std::endl;
+    std::cout << "  -M=[x]: Number of rows MK matrix" << std::endl;
+    std::cout << "  -N=[x]: Number of columns KN matrix" << std::endl;
+    std::cout << "  -K=[x]: Number of columns MK and rows KN matrix (cluster size)" << std::endl;
+    std::cout << "  -T_M=[x]: Number of M rows mapped at a time" << std::endl;
+    std::cout << "  -T_N=[x]: Number of N columns at a time" << std::endl;
+    std::cout << "  -T_K=[x]: Number of K elements mapped at a time" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  [[[STONNE Mapper]]]" << std::endl;
+    std::cout << "    1. If used, the following parameters can be skipped: T_M, T_N and T_K." << std::endl;
+    std::cout << "    2. When using it, it is mandatory to also use the option -accumulation_buffer=1 to ensure that the tile configuration can" << std::endl;
+    std::cout << "       adjust to the hardware resources." << std::endl;
+    std::cout << "    -generate_tile=[0|none, 1|performance]: Enables mapping generation, specifying the target (only performance is supported)" << std::endl;
+    std::cout << endl;
+    std::cout << "  ** Please take into consideration that: **" << std::endl;
+    std::cout << "  1. Number of Virtual Neurons mapped (Num_VNs) will be T_N*T_M" << std::endl;
+    std::cout << "  2. The minimum number of MSwitches needed will be at least T_K*Num_VNs." << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "[[SparseGEMM]]" << std::endl;
+    std::cout << "  -layer_name=[x]:  Name of the layer to run. The output statistic file will be called by this name" << std::endl;
+    std::cout << "  -M=[x]: Number of rows MK matrix" << std::endl;
+    std::cout << "  -N=[x]: Number of columns KN matrix" << std::endl;
+    std::cout << "  -K=[x]: Number of columns MK and rows KN matrix (cluster size)" << std::endl;
+    std::cout << "  -MK_sparsity=[x]: Percentage of sparsity MK matrix (0-100)" << std::endl;
+    std::cout << "  -KN_sparsity=[x]: Percentahe of sparsity KN matrix (0-100)" << std::endl;
+    std::cout << "  -dataflow=[MK_STA_KN_STR, MK_STR_KN_STA]: Dataflow to used during operations " << std::endl;
+    std::cout << "  -optimize=[0,1]: apply compiler-based optimizations" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "[[SparseDense]]" << std::endl;
+    std::cout << "  -layer_name=[x]:  Name of the layer to run. The output statistic file will be called by this name" << std::endl;
+    std::cout << "  -M=[x]: Number of rows MK matrix" << std::endl;
+    std::cout << "  -N=[x]: Number of columns KN matrix" << std::endl;
+    std::cout << "  -K=[x]: Number of columns MK and rows KN matrix (cluster size)" << std::endl;
+    std::cout << "  -MK_sparsity=[x]: Percentage of sparsity MK matrix (0-100)" << std::endl;
+    std::cout << "  -T_N=[x]: Number of N columns mapped at a time" << std::endl;
+    std::cout << "  -T_K=[x]: Number of K elements mapped at a time" << std::endl;
+    std::cout << std::endl;
+    std::cout << "  [[[STONNE Mapper]]]" << std::endl;
+    std::cout << "    1. If used, the following parameters can be skipped: T_N and T_K." << std::endl;
+    std::cout << "    2. When using it, it is mandatory to also use the option -accumulation_buffer=1 to ensure that the tile configuration can" << std::endl;
+    std::cout << "       adjust to the hardware resources." << std::endl;
+    std::cout << "    -generate_tile=[0|none, 1|performance]: Enables mapping generation, specifying the target (only performance is supported)" << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "***********************************************************************************************************" << std::endl;
+    std::cout << "***********************************************************************************************************" << std::endl;
+    std::cout << std::endl;
+    std::cout << "[Examples of use]" << std::endl;
+    std::cout << "- Running a CONV layer (manual mapping)" << std::endl;
+    std::cout << "  ./stonne -CONV -R=3 -S=3 -C=6 -G=1 -K=6 -N=1 -X=20 -Y=20 -T_R=3 -T_S=3 -T_C=1 -T_G=1 -T_K=1 -T_N=1 -T_X_=3 -T_Y_=1 -num_ms=64 -dn_bw=8 -rn_bw=8" << std::endl;
+    std::cout << "- Running a CONV layer using STONNE Mapper (energy target)" << std::endl;
+    std::cout << "  ./stonne -CONV -R=3 -S=3 -C=6 -G=1 -K=6 -N=1 -X=20 -Y=20 -generate_tile=energy -num_ms=64 -dn_bw=8 -rn_bw=8 -accumulation_buffer=1" << std::endl;
     exit(0);
     return true; //Never executed
 }
 
 //This function modifies the default values of the parameters according to user arguments.
 void configConvParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &R, unsigned int &S, unsigned int &C, unsigned int &K, unsigned int &G, unsigned int &N, unsigned int &X, unsigned int &Y, unsigned int &strides,
-                          unsigned int &T_R, unsigned int &T_S, unsigned int &T_C, unsigned int &T_K, unsigned int &T_G, unsigned int &T_N, unsigned int &T_X_, unsigned int &T_Y_) {
+                      unsigned int &T_R, unsigned int &T_S, unsigned int &T_C, unsigned int &T_K, unsigned int &T_G, unsigned int &T_N, unsigned int &T_X_, unsigned int &T_Y_, TileGenerator::Target &tileGeneratorTarget, TileGenerator::Generator &tileGenerator) {
 
     //Parsing
     for(int i=2; i<argc; i++) { //0 is the name of the program and 1 is the execution command type
@@ -728,7 +959,7 @@ void configConvParameters(int argc, char *argv[], Config &stonne_cfg, std::strin
             string value_str=arg.substr(pos+1);
             string name=arg.substr(0, pos);
             unsigned int value;
-            if((name != "-layer_name") && (name != "-rn_type")) { //string parameters
+            if((name != "-layer_name") && (name != "-rn_type") && (name != "-generate_tile") && (name != "-generator")) { //string parameters
                 value=stoi(value_str);
             }
             //Checking parameter name
@@ -780,6 +1011,7 @@ void configConvParameters(int argc, char *argv[], Config &stonne_cfg, std::strin
                 std::cout << "Changing rn_type to " << value_str << std::endl;
                 stonne_cfg.m_ASNetworkCfg.reduce_network_type=get_type_reduce_network_type(value_str);
             }
+
             //Running configuration parameters (layer and tile)
 
             //Layer parameters
@@ -874,8 +1106,20 @@ void configConvParameters(int argc, char *argv[], Config &stonne_cfg, std::strin
                 T_Y_=value;
             }
 
-            //Parameter is not recognized
-            else {
+            else if(name=="-generate_tile") {
+                std::cout << "Changing generate_tile to " << value_str << std::endl;
+                tileGeneratorTarget = parseTileGeneratorTarget(value_str);
+            }
+
+            else if(name=="-generator") {
+                std::cout << "Changing generator to " << value_str << std::endl;
+                tileGenerator = parseTileGenerator(value_str);
+            }
+
+
+
+           //Parameter is not recognized
+           else {
                 std::cout << "Error: parameter " << name << " does not exist" << std::endl;
                 exit(1);
             }
@@ -894,8 +1138,8 @@ void configConvParameters(int argc, char *argv[], Config &stonne_cfg, std::strin
     }
 }
 
-void configDenseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &K, unsigned int &N, unsigned int &T_M, unsigned int &T_K, unsigned int &T_N) {
-    //Parsing
+void configDenseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &K, unsigned int &N, unsigned int &T_M, unsigned int &T_K, unsigned int &T_N, TileGenerator::Target &tileGeneratorTarget, TileGenerator::Generator &tileGenerator) {
+  //Parsing
     for(int i=2; i<argc; i++) { //0 is the name of the program and 1 is the execution command type
         string arg = argv[i];
         //Spliting using = character
@@ -904,7 +1148,7 @@ void configDenseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std::
             string value_str=arg.substr(pos+1);
             string name=arg.substr(0, pos);
             unsigned int value;
-            if((name != "-layer_name") && (name != "-rn_type") && (name != "-mn_type") && (name != "-mem_ctrl")) { //string parameters
+            if((name != "-layer_name") && (name != "-rn_type") && (name != "-mn_type") && (name != "-mem_ctrl") && (name != "-generate_tile") && (name != "-generator")) { //string parameters
                 value=stoi(value_str);
             }
             //Checking parameter name
@@ -986,9 +1230,6 @@ void configDenseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std::
                 stonne_cfg.m_SDMemoryCfg.mem_controller_type=get_type_memory_controller_type(value_str);
             }
 
-
-
-
             //Running configuration parameters (layer)
 
             //Layer parameters
@@ -1015,22 +1256,30 @@ void configDenseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std::
             else if(name=="-T_M") {
                 std::cout << "Changing T_M to " << value << std::endl;
                 T_M=value;
+           }
+  
+           else if(name=="-T_N") {
+               std::cout << "Changing T_N to " << value << std::endl;
+               T_N=value;
+           }
+  
+	        else if(name=="-T_K") {
+               std::cout << "Changing T_K to " << value << std::endl;
+               T_K=value;
+           }
+
+            else if(name=="-generate_tile") {
+                std::cout << "Changing generate_tile to " << value_str << std::endl;
+                tileGeneratorTarget = parseTileGeneratorTarget(value_str);
             }
 
-            else if(name=="-T_N") {
-                std::cout << "Changing T_N to " << value << std::endl;
-                T_N=value;
+            else if(name=="-generator") {
+                std::cout << "Changing generator to " << value_str << std::endl;
+                tileGenerator = parseTileGenerator(value_str);
             }
 
-            else if(name=="-T_K") {
-                std::cout << "Changing T_K to " << value << std::endl;
-                T_K=value;
-            }
-
-
-
-            //Parameter is not recognized
-            else {
+           //Parameter is not recognized
+           else {
                 std::cout << "Error: parameter " << name << " does not exist" << std::endl;
                 exit(1);
             }
@@ -1062,7 +1311,7 @@ void configSparseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std:
             string value_str=arg.substr(pos+1);
             string name=arg.substr(0, pos);
             unsigned int value;
-            if((name != "-layer_name") && (name != "-dataflow")) { //string parameters
+            if((name != "-layer_name") && (name != "-dataflow") && (name != "-mem_ctrl")) { //string parameters
                 value=stoi(value_str);
             }
             //Checking parameter name
@@ -1169,7 +1418,7 @@ void configSparseGEMMParameters(int argc, char *argv[], Config &stonne_cfg, std:
     }
 }
 
-void configSparseDenseParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &N, unsigned int &K, unsigned int &MK_sparsity, unsigned int &T_N, unsigned int &T_K) {
+void configSparseDenseParameters(int argc, char *argv[], Config &stonne_cfg, std::string &layer_name, unsigned int &M, unsigned int &N, unsigned int &K, unsigned int &MK_sparsity, unsigned int &T_N, unsigned int &T_K, TileGenerator::Target &tileGeneratorTarget, TileGenerator::Generator &tileGenerator) {
     //Parsing
     for(int i=2; i<argc; i++) { //0 is the name of the program and 1 is the execution command type
         string arg = argv[i];
@@ -1179,7 +1428,7 @@ void configSparseDenseParameters(int argc, char *argv[], Config &stonne_cfg, std
             string value_str=arg.substr(pos+1);
             string name=arg.substr(0, pos);
             unsigned int value;
-            if((name != "-layer_name") && (name != "-rn_type")) { //string parameters
+            if((name != "-layer_name") && (name != "-rn_type") && (name != "-generate_tile") && (name != "-generator")) { //string parameters
                 value=stoi(value_str);
             }
             //Checking parameter name
@@ -1247,27 +1496,44 @@ void configSparseDenseParameters(int argc, char *argv[], Config &stonne_cfg, std
             else if(name=="-MK_sparsity") {
                 std::cout << "Changing MK_sparsity to " << value << std::endl;
                 MK_sparsity=value;
+                if (MK_sparsity < 0 || MK_sparsity > 100) {
+                    std::cerr << "Error: -MK_sparsity must be between 0 and 100" << std::endl;
+                    assert(false);
+                }
+           }
+  
+           else if(name=="-T_N") {
+               std::cout << "Changing T_N to " << value << std::endl;
+               T_N=value;
+           }
+
+	        else if(name=="-T_K") {
+               std::cout << "Changing T_K to " << value << std::endl;
+               T_K=value;
+           }
+
+            else if(name=="-generate_tile") {
+                std::cout << "Changing generate_tile to " << value_str << std::endl;
+                tileGeneratorTarget = parseTileGeneratorTarget(value_str);
             }
 
-            else if(name=="-T_N") {
-                std::cout << "Changing T_N to " << value << std::endl;
-                T_N=value;
+            else if(name=="-generator") {
+                std::cout << "Changing generator to " << value_str << std::endl;
+                tileGenerator = parseTileGenerator(value_str);
             }
-
-            else if(name=="-T_K") {
-                std::cout << "Changing T_K to " << value << std::endl;
-                T_K=value;
-            }
-
-            else if(name=="-accumulation_buffer") {
+           
+           else if(name=="-accumulation_buffer") {
                 std::cout << "Changing accumulation_buffer to " << value << std::endl;
+                if (value == 0)
+                    std::cout << "NOTE: disabling the accumulation_buffer for SparseDense operations " <<
+                                 "could cause an unexpected behavior and the simulation could not work correctly" << std::endl;
                 stonne_cfg.m_ASNetworkCfg.accumulation_buffer_enabled=value;
             }
 
-            else if(name=="-rn_type") {
-                std::cout << "Changing rn_type to " << value_str << std::endl;
-                stonne_cfg.m_ASNetworkCfg.reduce_network_type=get_type_reduce_network_type(value_str);
-            }
+	       else if(name=="-rn_type") {
+               std::cout << "Changing rn_type to " << value_str << std::endl;
+               stonne_cfg.m_ASNetworkCfg.reduce_network_type=get_type_reduce_network_type(value_str);
+           }
 
             //Parameter is not recognized
             else {
