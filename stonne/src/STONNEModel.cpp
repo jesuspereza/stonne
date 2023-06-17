@@ -1,15 +1,15 @@
 //
 // Created by Francisco Munoz-Martinez on 18/06/19.
 //
-#include "../include/STONNEModel.h"
+#include "STONNEModel.h"
 
 #include <assert.h>
 #include <chrono>
-#include "../include/types.h"
+#include "types.h"
 #include <vector>
-#include "../include/Tile.h"
-#include "../include/utility.h"
-#include "../include/Config.h"
+#include "Tile.h"
+#include "utility.h"
+#include "Config.h"
 #include <time.h>
 #include <math.h>
 #include <unistd.h>

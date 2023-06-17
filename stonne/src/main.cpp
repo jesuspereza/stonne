@@ -1,12 +1,12 @@
 #include <iostream>
-#include "../include/STONNEModel.h"
-#include "../include/types.h"
+#include "STONNEModel.h"
+#include "types.h"
 #include <chrono>
 #include <assert.h>
-#include "../include/testbench.h"
+#include "testbench.h"
 #include <string>
 #include <math.h>
-#include "../include/utility.h"
+#include "utility.h"
 
 using namespace std;
 
