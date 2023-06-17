@@ -3,7 +3,7 @@ sys.path.insert(1, 'NLP/BERT/')
 sys.path.insert(1,'object_detection/ssd-mobilenets/')
 sys.path.insert(1,'object_detection/ssd-resnets/')
 sys.path.insert(1, 'object_detection/utils_obj_detection/')
-import run_bert
+#import run_bert
 import run_ssd_mobilenets
 import run_ssd_resnets
 
@@ -24,9 +24,9 @@ def run_models():
     sparsity_ratio = float(sys.argv[4])
     output_path = sys.argv[5]
 
-    if(name_model == 'bert'):
-        run_bert.run_model(simulation_file, tiles_path, sparsity_ratio, output_path, BERT_WEIGHTS)
-    elif(name_model == 'ssd_mobilenets'):
+    # if(name_model == 'bert'):
+    #     run_bert.run_model(simulation_file, tiles_path, sparsity_ratio, output_path, BERT_WEIGHTS)
+    if(name_model == 'ssd_mobilenets'):
         run_ssd_mobilenets.run_model(simulation_file, tiles_path, sparsity_ratio, output_path, SSD_MOBILENETS_WEIGHTS, OBJECT_DETECTION_INPUT)
 
     elif(name_model == 'ssd_resnets'):

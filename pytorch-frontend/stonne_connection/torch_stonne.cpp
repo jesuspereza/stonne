@@ -435,7 +435,7 @@ torch::Tensor simulated_max_pool_forward(std::string layer_name, torch::Tensor i
     int W_out = ((Y + 2*padding[1] - dilation[1] * (S-1) - 1) / stride[0]) + 1;
     torch::Tensor output = torch::rand({N,C,H_out, W_out});
     float* output_raw = (float*) output.data_ptr();
-    
+
     simulateMaxPoolingForward(layer_name, input_raw, output_raw, R, S, C, N, X, Y, H_out, W_out, strides, pad_x, pad_y, path_to_tile, stonne_cfg);
     return output;
 }
