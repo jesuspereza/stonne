@@ -53,11 +53,10 @@ void cpu_gemm(float* MK_dense_matrix, float* KN_dense_matrix, float* output, uns
 
 void max_pooling_layer(unsigned int R, unsigned int S, unsigned int C, unsigned int N, unsigned int X, unsigned int Y, unsigned int strides, 
 float* input, float * outputs) {
-
     unsigned int OX=(X - R + strides) / strides;
     unsigned int OY=(Y - S + strides) / strides;
-    unsigned int output_size_n = C*OX*OY;
-    unsigned int input_size_n = C*X*Y;
+    unsigned int output_size_n = N*C*OX*OY;
+    unsigned int input_size_n = N*C*X*Y;
     unsigned int size_oy=OY*C;
     unsigned int size_y=Y*C;
     for(int n=0; n<N; n++) {
@@ -81,24 +80,24 @@ void average_pooling_layer(unsigned int R, unsigned int S, unsigned int C, unsig
 float* input, float * outputs) {
     unsigned int OX=(X - R + strides) / strides;
     unsigned int OY=(Y - S + strides) / strides;
-    unsigned int output_size_n = OX*OY;
-    unsigned int input_size_n = C*X*Y;
-    unsigned int size_oy=OY;
+    unsigned int output_size_n = N*C*OX*OY;
+    unsigned int input_size_n = N*C*X*Y;
+    unsigned int size_oy=OY*C;
     unsigned int size_y=Y*C;
     for(int n=0; n<N; n++) {
         for(int c=0; c<C; c++) {
             for(int ox=0; ox<OX; ox++) {
                 for(int oy=0; oy<OY; oy++) {
                     float acc = 0.0;
-                    for(int r=0;r<R;r++) {
-                        for(int s=0;s<S;s++) {
-                            acc += input[n*input_size_n + ox*strides*size_y + oy*strides*C + r*size_y + s*C + c];
+                        for(int r=0;r<R;r++) {
+                            for(int s=0;s<S;s++) {
+                                acc += input[n*input_size_n + ox*strides*size_y + oy*strides*C + r*size_y + s*C + c];
                         }
                     }
-                    outputs[n*output_size_n + ox*size_oy + oy] = acc / (R*S);
+                    outputs[n*output_size_n + ox*size_oy + oy*C + c] = acc / (R*S);
                 }
             }
-        }
+        }  
     }
 }
 

@@ -54,7 +54,7 @@ void AccumulationBuffer::configureSignals(Tile* current_tile, DNNLayer* dnn_laye
 
     this->NPSumsConfiguration(n_folding); //All the accumulation buffers have the same folding iteration numbers which means that in this case all the VNs are similar
 
-    if (dnn_layer->get_layer_type() == MAX_POOL)
+    if (dnn_layer->get_layer_type() == MAX_POOL || dnn_layer->get_layer_type() == AVG_POOL)
         this->setOperationMode(COMPARATOR);
 } 
 

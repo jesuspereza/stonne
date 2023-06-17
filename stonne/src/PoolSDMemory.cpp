@@ -533,6 +533,11 @@ void PoolSDMemory::cycle() {
             DataPackage* pck_received = write_fifo->pop();
             unsigned int vn = pck_received->get_vn();
             data_t data = pck_received->get_data();
+
+            if (this->dnn_layer->get_layer_type() == AVG_POOL) {
+                data = data / (this->dnn_layer->get_R() * this->dnn_layer->get_S());
+            }
+
             //std::cout << "Writing data: " << data << std::endl;
             // using the VNAT register to get the address to write
             assert(vn==VNAT[vn]->VN);

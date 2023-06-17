@@ -17,7 +17,7 @@ void CompilerMSN::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsi
     //Configuring Multiplier switches
     this->generate_ms_signals(num_ms);
     
-    if (dnn_layer->get_layer_type() == MAX_POOL)
+    if (dnn_layer->get_layer_type() == MAX_POOL || dnn_layer->get_layer_type() == AVG_POOL)
         this->generate_pool_ms_signals();
 }
 

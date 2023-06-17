@@ -101,3 +101,18 @@ class SimulatedMaxPool2d(_SimulatedPoolNd):
     def forward(self, input: Tensor) -> Tensor:
         import torch_stonne
         return torch_stonne.simulated_max_pool_forward(self.__class__.__name__, input, self.kernel_size, self.stride, self.padding, self.dilation, self.path_to_arch_file, self.path_to_tile)
+
+class SimulatedAvgPool2d(_SimulatedPoolNd):
+    kernel_size: _size_2_t
+    stride: _size_2_t
+    padding: _size_2_t
+    dilation: _size_2_t
+    def __init__(self, kernel_size: _size_2_t, path_to_arch_file: str = '', path_to_tile: str = '', stride: _size_2_t = 1, padding: _size_2_t = 0, dilation: _size_2_t = 1, return_indices: bool = False, ceil_mode: bool = False):
+        kernel_size = _pair(kernel_size)
+        stride = _pair(stride)
+        padding = _pair(padding)
+        dilation = _pair(dilation)
+        super(SimulatedAvgPool2d, self).__init__(kernel_size, path_to_arch_file, path_to_tile, stride, padding, dilation, False, False)
+    def forward(self, input: Tensor) -> Tensor:
+        import torch_stonne
+        return torch_stonne.simulated_avg_pool_forward(self.__class__.__name__, input, self.kernel_size, self.stride, self.padding, self.dilation, self.path_to_arch_file, self.path_to_tile)

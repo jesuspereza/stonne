@@ -667,8 +667,6 @@ bool runMaxPoolingCommand(int argc, char *argv[]) {
     
     //Computing the CNN Layer with the simulator
     // TODO : Configure STONNE accordingly
-    stonne_cfg.m_SDMemoryCfg.mem_controller_type = POOL_DENSE_WORKLOAD;
-    stonne_cfg.m_ASNetworkCfg.accumulation_buffer_enabled = true;
 
     Stonne* stonne_instance = new Stonne(stonne_cfg); //Creating instance of the simulator
     stonne_instance->loadDNNLayer(MAX_POOL, layer_name, R, S, C, C, C, N, X, Y, strides, ifmap, nullptr, ofmap, CNN_DATAFLOW); //Loading the layer
@@ -708,6 +706,7 @@ bool runMaxPoolingCommand(int argc, char *argv[]) {
 }
 
 bool runAveragePoolingCommand(int argc, char *argv[]) {
+    std::cout << "here" << std::endl;
     float EPSILON=0.05;
     unsigned int MAX_RANDOM=10; //Variable used to generate the random values
     /** Generating the inputs and outputs **/
@@ -741,7 +740,7 @@ bool runAveragePoolingCommand(int argc, char *argv[]) {
 
     //Creating arrays to store the ifmap ofmap and weights
     unsigned int ifmap_size=N*X*Y*C;
-    unsigned int ofmap_size=N*X_*Y_;
+    unsigned int ofmap_size=N*X_*Y_*C;
     float* ifmap = new float[ifmap_size];
     float* ofmap = new float[ofmap_size];
     float* ofmap_cpu = new float[ofmap_size]; //Used to store the CPU computed values to compare with the simulator version
@@ -752,7 +751,6 @@ bool runAveragePoolingCommand(int argc, char *argv[]) {
     }
 
     //computing CPU version
-    // max_pooling_layer(R, S, C, N, X, Y, strides, ifmap, ofmap);
     average_pooling_layer(R, S, C, N, X, Y, strides, ifmap, ofmap_cpu);
 
     /** END of generating the inputs and outputs **/
@@ -763,10 +761,10 @@ bool runAveragePoolingCommand(int argc, char *argv[]) {
     
     //Computing the CNN Layer with the simulator
     // TODO : Configure STONNE accordingly
-    /*Stonne* stonne_instance = new Stonne(stonne_cfg); //Creating instance of the simulator
-    stonne_instance->loadDNNLayer(CONV, layer_name, R, S, C, 1, 1, N, X, Y, strides, ifmap, filter, ofmap, CNN_DATAFLOW); //Loading the layer
-    stonne_instance->loadTile(T_R, T_S, T_C, T_K, T_G, T_N, T_X_, T_Y_); //Loading the tile
-    stonne_instance->run(); //Running the simulator */
+    Stonne* stonne_instance = new Stonne(stonne_cfg); //Creating instance of the simulator
+    stonne_instance->loadDNNLayer(AVG_POOL, layer_name, R, S, C, C, C, N, X, Y, strides, ifmap, nullptr, ofmap, CNN_DATAFLOW); //Loading the layer
+    stonne_instance->loadTile(T_R, T_S, T_C, 1, 1, T_N, T_X_, T_Y_); //Loading the tile
+    stonne_instance->run(); //Running the simulator
 
     /** END of configuring and running the accelerator  **/
     //
@@ -776,19 +774,18 @@ bool runAveragePoolingCommand(int argc, char *argv[]) {
 
     //Comparing the results
     for(int i=0;i<ofmap_size; i++) {
-        float difference=fabs(ofmap_cpu[i]-ofmap_cpu[i]);
+        float difference=fabs(ofmap_cpu[i]-ofmap[i]);
         if(difference > EPSILON) {
             std::cout << "ERROR position " << i <<  ": Value ofmap simulator: " << ofmap[i] << ". Value ofmap CPU: " << ofmap_cpu[i] << std::endl;
             std::cout << "\033[1;31mT test not passed\033[0m" << std::endl;
             delete[] ifmap;
             delete[] ofmap;
             delete[] ofmap_cpu;
-            // delete stonne_instance;
+            delete stonne_instance;
             assert(false); //Always false
             
         }
     }
-
 
     //If the code does not stop then the TEST is correct
     std::cout << "\033[1;32mTest passed correctly \033[0m" << std::endl << std::endl;
@@ -1704,5 +1701,8 @@ void configPoolingParameters(int argc, char *argv[], Config &stonne_cfg, std::st
             exit(1);
 
         }
+
+        stonne_cfg.m_SDMemoryCfg.mem_controller_type = POOL_DENSE_WORKLOAD;
+        stonne_cfg.m_ASNetworkCfg.accumulation_buffer_enabled = true;
     }
 }

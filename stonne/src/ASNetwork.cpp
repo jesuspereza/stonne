@@ -301,6 +301,8 @@ void ASNetwork::configureSignals(Tile* current_tile, DNNLayer* dnn_layer, unsign
 
     if (dnn_layer->get_layer_type() == MAX_POOL) {
         this->addersOperation(COMPARATOR);
+    } else if (dnn_layer->get_layer_type() == AVG_POOL) {
+        this->addersOperation(ADDER);
     }
 
     delete compiler_art;

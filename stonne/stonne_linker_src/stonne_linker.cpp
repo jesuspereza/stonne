@@ -341,3 +341,33 @@ void simulateMaxPoolingForward(std::string layer_name, float* input, float* outp
    delete[] ifmap_to_send;
    delete stonne_instance;
 }
+
+void simulateAvgPoolingForward(std::string layer_name, float* input, float* output, int R, int S, int C, int N, int X, int Y, int X_, int Y_, int strides, int pad_x, int pad_y, std::string path_to_tile, Config stonne_cfg) {
+   //Updating X and Y with pad values
+   //const int pad_y=this->pad_.cpu_data()[0]; //alto
+   const int ifmap_size=C*((X+2*pad_x)*(Y+2*pad_y));
+   const int ofmap_size = C*X_*Y_; //X_ and Y_ include padding
+   std::cout << "Executing layer " << layer_name << std::endl;
+   if(path_to_tile == "") {
+	   std::cout << "Tile file parameters must be specified" << std::endl;
+	   exit(1);
+   }
+
+   float* ifmap_to_send=Transform_Ifmap_Memory(input, C, X, Y, pad_x, pad_y) ;
+   float* ofmap_raw = new float[ofmap_size];
+
+   stonne_cfg.m_SDMemoryCfg.mem_controller_type = POOL_DENSE_WORKLOAD;
+   stonne_cfg.m_ASNetworkCfg.accumulation_buffer_enabled = true;
+
+   Stonne* stonne_instance = new Stonne(stonne_cfg); //Creating instance of the simulator
+   stonne_instance->loadDNNLayer(AVG_POOL, layer_name, R, S, C, C, C, N, X, Y, strides, (address_t) ifmap_to_send, nullptr, (address_t) ofmap_raw, CNN_DATAFLOW); //Loading the layer
+   stonne_instance->loadTile(path_to_tile); //Loading the tile
+   stonne_instance->run(); //Running the simulator
+
+   Transform_Ofmap_Memory(ofmap_raw, output, C, X_, Y_); // Transform simulator memory format to caffe format.     
+
+   //Deleting objects
+   delete[] ofmap_raw;
+   delete[] ifmap_to_send;
+   delete stonne_instance;
+}
