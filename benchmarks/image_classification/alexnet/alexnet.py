@@ -29,10 +29,9 @@ class AlexNet(nn.Module):
             nn.Conv2d(256, 256, kernel_size=3, padding=1),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(kernel_size=3, stride=2),
-        )'''
-
+        )
         self.avgpool = nn.AdaptiveAvgPool2d((6, 6))
-        '''self.classifier = nn.Sequential(
+        self.classifier = nn.Sequential(
             nn.Dropout(),
             nn.Linear(256 * 6 * 6, 4096),
             nn.ReLU(inplace=True),
@@ -45,18 +44,20 @@ class AlexNet(nn.Module):
         self.features = nn.Sequential(
             nn.SimulatedConv2d(3, 64, kernel_size=11, path_to_arch_file='maeri_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_conv1.txt', sparsity_ratio=0.90, stride=4, padding=2),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.SimulatedMaxPool2d(kernel_size=3, path_to_arch_file='pool_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_pool.txt', stride=2),
             nn.SimulatedConv2d(64, 192, kernel_size=5,path_to_arch_file='maeri_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_conv2.txt', sparsity_ratio=0.90, padding=2),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.SimulatedMaxPool2d(kernel_size=3, path_to_arch_file='pool_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_pool.txt', stride=2),
             nn.SimulatedConv2d(192, 384, kernel_size=3, path_to_arch_file='maeri_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_conv3.txt', sparsity_ratio=0.90, padding=1),
             nn.ReLU(inplace=True),
             nn.SimulatedConv2d(384, 256, kernel_size=3, path_to_arch_file='maeri_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_conv4.txt', sparsity_ratio=0.90,padding=1),
             nn.ReLU(inplace=True),
             nn.SimulatedConv2d(256, 256, kernel_size=3, path_to_arch_file='maeri_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_conv5.txt', sparsity_ratio=0.90, padding=1),
             nn.ReLU(inplace=True),
-            nn.MaxPool2d(kernel_size=3, stride=2),
+            nn.SimulatedMaxPool2d(kernel_size=3, path_to_arch_file='pool_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_pool.txt', stride=2),
         )
+
+        self.avgpool = nn.SimulatedAdaptativeAvgPool2d((6, 6), path_to_arch_file='pool_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_pool.txt')
 
         self.classifier = nn.Sequential(
             nn.Dropout(),
@@ -67,9 +68,6 @@ class AlexNet(nn.Module):
             nn.ReLU(inplace=True),
             nn.SimulatedLinear(4096, num_classes, path_to_arch_file='maeri_256mses_256_bw.cfg', path_to_tile='tiles/tile_configuration_fc8.txt', sparsity_ratio=0.90),
         )
-
-
-
         
     def forward(self, x):
         x = self.features(x)
@@ -77,7 +75,6 @@ class AlexNet(nn.Module):
         x = torch.flatten(x, 1)
         x = self.classifier(x)
         return x
-
 
 def alexnet_model(pretrained=False, progress=True, **kwargs):
     r"""AlexNet model architecture from the
@@ -92,6 +89,3 @@ def alexnet_model(pretrained=False, progress=True, **kwargs):
                                            progress=progress)
         model.load_state_dict(state_dict)
     return model
-
-
-#alex_model = alexnet(pretrained=True)

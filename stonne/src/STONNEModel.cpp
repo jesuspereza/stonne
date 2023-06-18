@@ -321,6 +321,10 @@ void Stonne::loadTile(std::string tile_file) {
         std::cout << "Reading a tile of type FC" << std::endl;
     }
 
+    else if(*tile_type=="POOL") {
+        std::cout << "Reading a tile of type POOL" << std::endl;
+    }
+
     else {
         std::cout << "Error to parse tile_type. Specify a correct type: [CONV, FC, POOL]" << std::endl;
         exit(1);
@@ -412,6 +416,48 @@ void Stonne::loadTile(std::string tile_file) {
         }
     }
 
+    else if (*tile_type == "POOL")
+    {
+        if (tileGeneratorTarget_str && (tileGeneratorTarget = parseTileGeneratorTarget(*tileGeneratorTarget_str)) != TileGenerator::Target::NONE) {
+            if (tileGenerator_str)
+                tileGenerator = parseTileGenerator(*tileGenerator_str);
+            generateTile(tileGenerator, tileGeneratorTarget);
+            return;
+        } else {
+            if(!T_R) {
+                std::cout << "Error to parse T_R. Value not found." << std::endl;
+                exit(1);
+            }
+
+            if(!T_S) {
+                std::cout << "Error to parse T_S. Value not found." << std::endl;
+                exit(1);
+            }
+
+            if(!T_C) {
+                std::cout << "Error to parse T_C. Value not found." << std::endl;
+                exit(1);
+            }
+
+            if(!T_N) {
+                std::cout << "Error to parse T_N. Value not found." << std::endl;
+                exit(1);
+            }
+
+            if(!T_X_) {
+                std::cout << "Error to parse T_X'. Value not found." << std::endl;
+                exit(1);
+            }
+
+            if(!T_Y_) {
+                std::cout << "Error to parse T_Y'. Value not found." << std::endl;
+                exit(1);
+            }
+
+            loadTile(*T_R, *T_S, *T_C, 1, 1, *T_N, *T_X_, *T_Y_);
+        }
+    }
+
     //Folding is not specified in this case since this use case is not to load the tile into the architecture. Rather, it is to load the tile from the file and layer specify all the parameters
     // to the architecture by means of some abstractions like an instruction.
 
@@ -431,6 +477,8 @@ void Stonne::generateTile(TileGenerator::Generator generator, TileGenerator::Tar
                                                generator);
 
     switch (dnn_layer->get_layer_type()) {
+        case Layer_t::MAX_POOL:
+        case Layer_t::AVG_POOL:
         case Layer_t::CONV: { // Generates a tile using the Stonne CONV parameters
             unsigned int R = dnn_layer->get_R();
             unsigned int S = dnn_layer->get_S();
@@ -449,8 +497,11 @@ void Stonne::generateTile(TileGenerator::Generator generator, TileGenerator::Tar
 
             std::cout << "Generated tile: <T_R=" << tile.T_R << ", T_S=" << tile.T_S << ", T_C=" << tile.T_C << ", T_K=" << tile.T_K << ", T_G=" << tile.T_G << ", T_N=" << tile.T_N << ", T_X'=" << tile.T_X_ << ", T_Y'=" << tile.T_Y_ << ">" << std::endl;
 
+            uint T_K = dnn_layer->get_layer_type() == Layer_t::MAX_POOL || dnn_layer->get_layer_type() == Layer_t::AVG_POOL ? 1 : tile.T_K;
+            uint T_G = dnn_layer->get_layer_type() == Layer_t::MAX_POOL || dnn_layer->get_layer_type() == Layer_t::AVG_POOL ? 1 : tile.T_G;
+
             // Loads the generated tile and checks parameters
-            loadTile(tile.T_R, tile.T_S, tile.T_C, tile.T_K, tile.T_G, tile.T_N, tile.T_X_, tile.T_Y_);
+            loadTile(tile.T_R, tile.T_S, tile.T_C, T_K, T_G, tile.T_N, tile.T_X_, tile.T_Y_);
             break;
         }
 
