@@ -1,5 +1,3 @@
-import os
-import sys
 import torch
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
@@ -8,7 +6,6 @@ import numpy as np
 import cv2
 if torch.cuda.is_available():
     torch.set_default_tensor_type('torch.cuda.FloatTensor')
-
 
 import ssd_r34
 
@@ -40,5 +37,5 @@ def run_model(simulation_file='../../../simulation_files/sigma_128mses_64_bw.cfg
     y = net(xx)
     print('Execution finished successfully')
 
-#run_model()
+run_model()
 

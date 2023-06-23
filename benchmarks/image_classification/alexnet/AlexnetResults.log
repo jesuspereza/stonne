@@ -1,0 +1,385 @@
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=11, T_S=11, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 30064, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 10000/193600)
+[MEM_OUTPUT] Cycle 60112, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 20000/193600)
+[MEM_OUTPUT] Cycle 90160, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 30000/193600)
+[MEM_OUTPUT] Cycle 120224, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 40000/193600)
+[MEM_OUTPUT] Cycle 150272, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 50000/193600)
+[MEM_OUTPUT] Cycle 180320, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 60000/193600)
+[MEM_OUTPUT] Cycle 210384, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 70000/193600)
+[MEM_OUTPUT] Cycle 240432, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 80000/193600)
+[MEM_OUTPUT] Cycle 270480, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 90000/193600)
+[MEM_OUTPUT] Cycle 300544, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 100000/193600)
+[MEM_OUTPUT] Cycle 330592, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 110000/193600)
+[MEM_OUTPUT] Cycle 360640, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 120000/193600)
+[MEM_OUTPUT] Cycle 390688, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 130000/193600)
+[MEM_OUTPUT] Cycle 420752, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 140000/193600)
+[MEM_OUTPUT] Cycle 450800, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 150000/193600)
+[MEM_OUTPUT] Cycle 480848, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 160000/193600)
+[MEM_OUTPUT] Cycle 510912, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 170000/193600)
+[MEM_OUTPUT] Cycle 540960, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 180000/193600)
+[MEM_OUTPUT] Cycle 571008, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 190000/193600)
+Printing stats
+Number of cycles running: 581824
+Time mem: 287
+Time lt: 0
+Time as: 38
+Time ms: 23
+Time ds: 1
+Executing layer SimulatedMaxPool2d
+Reading a tile of type POOL
+Generating a tile automatically...
+Using generator <Auto> and target <performance>
+Using mRNA as Tile Generator for CONV layer
+Generated tile: <T_R=3, T_S=3, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Loading Tile: <T_R=3, T_S=3, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+dnn_layer_X_: 27
+current_tile_X: 1
+Iter_X=27
+dnn_layer_Y_: 27
+current_tile_y: 1
+Iter_Y=27
+num vn = 1
+dnn_layer X: 27
+psums to compute 46656
+[MEM_OUTPUT] Cycle 10098, STONNE generated a partial output from output port 249 and VN 0. OutputCount ( 10000/46656)
+[MEM_OUTPUT] Cycle 20196, STONNE generated a partial output from output port 249 and VN 0. OutputCount ( 20000/46656)
+[MEM_OUTPUT] Cycle 30294, STONNE generated a partial output from output port 249 and VN 0. OutputCount ( 30000/46656)
+[MEM_OUTPUT] Cycle 40385, STONNE generated a partial output from output port 249 and VN 0. OutputCount ( 40000/46656)
+Printing stats
+Number of cycles running: 47104
+Time mem: 1
+Time lt: 0
+Time as: 1
+Time ms: 0
+Time ds: 0
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=5, T_S=5, T_C=2, T_K=2, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 160301, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 10000/139968)
+[MEM_OUTPUT] Cycle 320602, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 20000/139968)
+[MEM_OUTPUT] Cycle 480903, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 30000/139968)
+[MEM_OUTPUT] Cycle 641204, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 40000/139968)
+[MEM_OUTPUT] Cycle 801505, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 50000/139968)
+[MEM_OUTPUT] Cycle 961806, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 60000/139968)
+[MEM_OUTPUT] Cycle 1122107, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 70000/139968)
+[MEM_OUTPUT] Cycle 1282365, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 80000/139968)
+[MEM_OUTPUT] Cycle 1442666, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 90000/139968)
+[MEM_OUTPUT] Cycle 1602967, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 100000/139968)
+[MEM_OUTPUT] Cycle 1763268, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 110000/139968)
+[MEM_OUTPUT] Cycle 1923569, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 120000/139968)
+[MEM_OUTPUT] Cycle 2083870, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 130000/139968)
+Printing stats
+Number of cycles running: 2243616
+Time mem: 116
+Time lt: 0
+Time as: 125
+Time ms: 104
+Time ds: 4
+Executing layer SimulatedMaxPool2d
+Reading a tile of type POOL
+Generating a tile automatically...
+Using generator <Auto> and target <performance>
+Using mRNA as Tile Generator for CONV layer
+Generated tile: <T_R=3, T_S=3, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Loading Tile: <T_R=3, T_S=3, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+dnn_layer_X_: 13
+current_tile_X: 1
+Iter_X=13
+dnn_layer_Y_: 13
+current_tile_y: 1
+Iter_Y=13
+num vn = 1
+dnn_layer X: 13
+psums to compute 32448
+[MEM_OUTPUT] Cycle 10420, STONNE generated a partial output from output port 249 and VN 0. OutputCount ( 10000/32448)
+[MEM_OUTPUT] Cycle 20833, STONNE generated a partial output from output port 249 and VN 0. OutputCount ( 20000/32448)
+[MEM_OUTPUT] Cycle 31246, STONNE generated a partial output from output port 249 and VN 0. OutputCount ( 30000/32448)
+Printing stats
+Number of cycles running: 33792
+Time mem: 1
+Time lt: 0
+Time as: 1
+Time ms: 0
+Time ds: 0
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=3, T_S=3, T_C=4, T_K=3, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 161191, STONNE generated a partial output from output port 5 and VN 1. OutputCount ( 10000/64896)
+[MEM_OUTPUT] Cycle 322335, STONNE generated a partial output from output port 6 and VN 2. OutputCount ( 20000/64896)
+[MEM_OUTPUT] Cycle 483480, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 30000/64896)
+[MEM_OUTPUT] Cycle 644613, STONNE generated a partial output from output port 5 and VN 1. OutputCount ( 40000/64896)
+[MEM_OUTPUT] Cycle 805757, STONNE generated a partial output from output port 6 and VN 2. OutputCount ( 50000/64896)
+[MEM_OUTPUT] Cycle 966902, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 60000/64896)
+Printing stats
+Number of cycles running: 1045760
+Time mem: 66
+Time lt: 0
+Time as: 62
+Time ms: 53
+Time ds: 2
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=3, T_S=3, T_C=6, T_K=2, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 322250, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 10000/43264)
+[MEM_OUTPUT] Cycle 644500, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 20000/43264)
+[MEM_OUTPUT] Cycle 966675, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 30000/43264)
+[MEM_OUTPUT] Cycle 1288925, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 40000/43264)
+Printing stats
+Number of cycles running: 1394048
+Time mem: 124
+Time lt: 0
+Time as: 85
+Time ms: 77
+Time ds: 2
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=3, T_S=3, T_C=6, T_K=2, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 216620, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 10000/43264)
+[MEM_OUTPUT] Cycle 433240, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 20000/43264)
+[MEM_OUTPUT] Cycle 649806, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 30000/43264)
+[MEM_OUTPUT] Cycle 866426, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 40000/43264)
+Printing stats
+Number of cycles running: 937088
+Time mem: 84
+Time lt: 0
+Time as: 58
+Time ms: 51
+Time ds: 1
+Executing layer SimulatedMaxPool2d
+Reading a tile of type POOL
+Generating a tile automatically...
+Using generator <Auto> and target <performance>
+Using mRNA as Tile Generator for CONV layer
+Generated tile: <T_R=3, T_S=3, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Loading Tile: <T_R=3, T_S=3, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+dnn_layer_X_: 6
+current_tile_X: 1
+Iter_X=6
+dnn_layer_Y_: 6
+current_tile_y: 1
+Iter_Y=6
+num vn = 1
+dnn_layer X: 6
+psums to compute 9216
+Printing stats
+Number of cycles running: 11008
+Time mem: 0
+Time lt: 0
+Time as: 0
+Time ms: 0
+Time ds: 0
+Executing layer SimulatedAdaptativeAvgPool2d
+Reading a tile of type POOL
+Generating a tile automatically...
+Using generator <Auto> and target <performance>
+Using mRNA as Tile Generator for CONV layer
+Generated tile: <T_R=1, T_S=1, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Loading Tile: <T_R=1, T_S=1, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+dnn_layer_X_: 6
+current_tile_X: 1
+Iter_X=6
+dnn_layer_Y_: 6
+current_tile_y: 1
+Iter_Y=6
+num vn = 1
+dnn_layer X: 6
+psums to compute 9216
+Printing stats
+Number of cycles running: 10240
+Time mem: 0
+Time lt: 0
+Time as: 0
+Time ms: 0
+Time ds: 0
+Loading a FC layer into STONNE
+Reading a tile of type FC
+Loading a FC tile
+Loading Tile: <T_R=1, T_S=12, T_C=1, T_K=8, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Printing stats
+Number of cycles running: 791552
+Time mem: 36
+Time lt: 0
+Time as: 41
+Time ms: 31
+Time ds: 1
+The value of M is 1
+The value of N is 4096
+Loading a FC layer into STONNE
+Reading a tile of type FC
+Loading a FC tile
+Loading Tile: <T_R=1, T_S=16, T_C=1, T_K=4, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Printing stats
+Number of cycles running: 533504
+Time mem: 24
+Time lt: 0
+Time as: 25
+Time ms: 16
+Time ds: 1
+The value of M is 1
+The value of N is 4096
+Loading a FC layer into STONNE
+Reading a tile of type FC
+Loading a FC tile
+Loading Tile: <T_R=1, T_S=8, T_C=1, T_K=10, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Printing stats
+Number of cycles running: 103300
+Time mem: 3
+Time lt: 0
+Time as: 5
+Time ms: 3
+Time ds: 0
+The value of M is 1
+The value of N is 1000
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=11, T_S=11, T_C=1, T_K=1, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 30064, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 10000/193600)
+[MEM_OUTPUT] Cycle 60112, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 20000/193600)
+[MEM_OUTPUT] Cycle 90160, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 30000/193600)
+[MEM_OUTPUT] Cycle 120224, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 40000/193600)
+[MEM_OUTPUT] Cycle 150272, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 50000/193600)
+[MEM_OUTPUT] Cycle 180320, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 60000/193600)
+[MEM_OUTPUT] Cycle 210384, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 70000/193600)
+[MEM_OUTPUT] Cycle 240432, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 80000/193600)
+[MEM_OUTPUT] Cycle 270480, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 90000/193600)
+[MEM_OUTPUT] Cycle 300544, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 100000/193600)
+[MEM_OUTPUT] Cycle 330592, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 110000/193600)
+[MEM_OUTPUT] Cycle 360640, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 120000/193600)
+[MEM_OUTPUT] Cycle 390688, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 130000/193600)
+[MEM_OUTPUT] Cycle 420752, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 140000/193600)
+[MEM_OUTPUT] Cycle 450800, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 150000/193600)
+[MEM_OUTPUT] Cycle 480848, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 160000/193600)
+[MEM_OUTPUT] Cycle 510912, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 170000/193600)
+[MEM_OUTPUT] Cycle 540960, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 180000/193600)
+[MEM_OUTPUT] Cycle 571008, STONNE generated a partial output from output port 243 and VN 0. OutputCount ( 190000/193600)
+Printing stats
+Number of cycles running: 581824
+Time mem: 285
+Time lt: 0
+Time as: 41
+Time ms: 28
+Time ds: 1
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=5, T_S=5, T_C=2, T_K=2, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 160301, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 10000/139968)
+[MEM_OUTPUT] Cycle 320602, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 20000/139968)
+[MEM_OUTPUT] Cycle 480903, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 30000/139968)
+[MEM_OUTPUT] Cycle 641204, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 40000/139968)
+[MEM_OUTPUT] Cycle 801505, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 50000/139968)
+[MEM_OUTPUT] Cycle 961806, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 60000/139968)
+[MEM_OUTPUT] Cycle 1122107, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 70000/139968)
+[MEM_OUTPUT] Cycle 1282365, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 80000/139968)
+[MEM_OUTPUT] Cycle 1442666, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 90000/139968)
+[MEM_OUTPUT] Cycle 1602967, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 100000/139968)
+[MEM_OUTPUT] Cycle 1763268, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 110000/139968)
+[MEM_OUTPUT] Cycle 1923569, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 120000/139968)
+[MEM_OUTPUT] Cycle 2083870, STONNE generated a partial output from output port 1 and VN 1. OutputCount ( 130000/139968)
+Printing stats
+Number of cycles running: 2243616
+Time mem: 119
+Time lt: 0
+Time as: 144
+Time ms: 120
+Time ds: 4
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=3, T_S=3, T_C=4, T_K=3, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 161191, STONNE generated a partial output from output port 5 and VN 1. OutputCount ( 10000/64896)
+[MEM_OUTPUT] Cycle 322335, STONNE generated a partial output from output port 6 and VN 2. OutputCount ( 20000/64896)
+[MEM_OUTPUT] Cycle 483480, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 30000/64896)
+[MEM_OUTPUT] Cycle 644613, STONNE generated a partial output from output port 5 and VN 1. OutputCount ( 40000/64896)
+[MEM_OUTPUT] Cycle 805757, STONNE generated a partial output from output port 6 and VN 2. OutputCount ( 50000/64896)
+[MEM_OUTPUT] Cycle 966902, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 60000/64896)
+Printing stats
+Number of cycles running: 1045760
+Time mem: 67
+Time lt: 0
+Time as: 70
+Time ms: 60
+Time ds: 2
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=3, T_S=3, T_C=6, T_K=2, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 322250, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 10000/43264)
+[MEM_OUTPUT] Cycle 644500, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 20000/43264)
+[MEM_OUTPUT] Cycle 966675, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 30000/43264)
+[MEM_OUTPUT] Cycle 1288925, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 40000/43264)
+Printing stats
+Number of cycles running: 1394048
+Time mem: 126
+Time lt: 0
+Time as: 95
+Time ms: 84
+Time ds: 2
+Executing layer SimulatedConv2d
+Reading a tile of type CONV
+Loading Tile: <T_R=3, T_S=3, T_C=6, T_K=2, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+[MEM_OUTPUT] Cycle 216620, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 10000/43264)
+[MEM_OUTPUT] Cycle 433240, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 20000/43264)
+[MEM_OUTPUT] Cycle 649806, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 30000/43264)
+[MEM_OUTPUT] Cycle 866426, STONNE generated a partial output from output port 245 and VN 0. OutputCount ( 40000/43264)
+Printing stats
+Number of cycles running: 937088
+Time mem: 85
+Time lt: 0
+Time as: 64
+Time ms: 54
+Time ds: 2
+Loading a FC layer into STONNE
+Reading a tile of type FC
+Loading a FC tile
+Loading Tile: <T_R=1, T_S=12, T_C=1, T_K=8, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Printing stats
+Number of cycles running: 791552
+Time mem: 37
+Time lt: 0
+Time as: 42
+Time ms: 32
+Time ds: 1
+The value of M is 1
+The value of N is 4096
+Loading a FC layer into STONNE
+Reading a tile of type FC
+Loading a FC tile
+Loading Tile: <T_R=1, T_S=16, T_C=1, T_K=4, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Printing stats
+Number of cycles running: 533504
+Time mem: 26
+Time lt: 0
+Time as: 27
+Time ms: 17
+Time ds: 1
+The value of M is 1
+The value of N is 4096
+Loading a FC layer into STONNE
+Reading a tile of type FC
+Loading a FC tile
+Loading Tile: <T_R=1, T_S=8, T_C=1, T_K=10, T_G=1, T_N=1, T_X'=1, T_Y'=1>
+Printing stats
+Number of cycles running: 103300
+Time mem: 3
+Time lt: 0
+Time as: 5
+Time ms: 4
+Time ds: 0
+The value of M is 1
+The value of N is 1000
+
+Fully Simulated ALEXNET
+
+Samoyed, Samoyede: 58.1750%
+wallaby, brush kangaroo: 23.9565%
+Angora, Angora rabbit: 5.8449%
+Pomeranian: 4.2003%
+Arctic fox, white fox, Alopex lagopus: 3.4700%
+
+Simulated ALEXNET
+
+wallaby, brush kangaroo: 72.2966%
+Angora, Angora rabbit: 7.9979%
+Samoyed, Samoyede: 7.8017%
+hare: 3.1352%
+Pomeranian: 2.9390%
