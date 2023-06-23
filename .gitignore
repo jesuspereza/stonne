@@ -28,3 +28,6 @@ pytorch-frontend/torch.egg-info
 .vscode/
 stonne/.idea/
 stonne/.vscode/
+
+# Deb
+*.deb
